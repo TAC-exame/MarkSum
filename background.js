@@ -1,28 +1,54 @@
-let modelLoaded = false;
+let transformer = null;
+let tokenizer = null;
 
-async function loadModel() {
-  if (!modelLoaded) {
-    try {
-      // Placeholder for actual model loading code
-      // You would need to implement this using web-llm
-      modelLoaded = true;
-    } catch (error) {
-      console.error('Error loading model:', error);
-      throw error;
-    }
+async function loadModel(modelName) {
+  try {
+    const { pipeline } = await import('@xenova/transformers');
+    transformer = await pipeline('summarization', modelName);
+    return { success: true };
+  } catch (error) {
+    console.error('Error loading model:', error);
+    return { success: false, error: error.message };
   }
 }
 
-// Listen for installation
-chrome.runtime.onInstalled.addListener(() => {
-  // Start loading the model
-  loadModel().catch(console.error);
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'loadModel') {
+    loadModel(request.modelName).then(sendResponse);
+    return true;  // Will respond asynchronously
+  }
+  
+  if (request.action === 'summarize') {
+    if (!transformer) {
+      sendResponse({ success: false, error: 'Model not loaded' });
+      return;
+    }
+
+    summarizeText(request.text, request.length).then(sendResponse);
+    return true;  // Will respond asynchronously
+  }
 });
 
-// Listen for messages from content script
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'modelStatus') {
-    sendResponse({ loaded: modelLoaded });
+async function summarizeText(text, length) {
+  try {
+    const maxLength = length === 'short' ? 130 : length === 'medium' ? 250 : 450;
+    const minLength = length === 'short' ? 30 : length === 'medium' ? 100 : 200;
+
+    const summary = await transformer(text, {
+      max_length: maxLength,
+      min_length: minLength,
+      do_sample: false
+    });
+
+    return {
+      success: true,
+      summary: summary[0].summary_text
+    };
+  } catch (error) {
+    console.error('Summarization error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
   }
-  return true;
-});
+}

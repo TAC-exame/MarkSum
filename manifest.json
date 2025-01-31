@@ -1,16 +1,36 @@
 {
     "manifest_version": 3,
-    "name": "Markdown Converter",
+    "name": "Summarizer Extension",
     "version": "1.0",
-    "description": "Conversão local de Markdown",
+    "description": "A summarizer extension using transformers",
+    "background": {
+        "service_worker": "background.js"
+    },
     "permissions": [
-      "activeTab"
+        "activeTab",
+        "scripting"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "permissions": [
+        "storage"
     ],
     "action": {
-      "default_popup": "popup.html"
+        "default_popup": "popup/popup.html",
+        "default_icon": {
+            "16": "assets/icon16.png",
+            "48": "assets/icon48.png",
+            "128": "assets/icon128.png"
+        }
     },
-    "content_scripts": [{
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
-    }]
-  }
+    "host_permissions": [
+        "http://*/*",
+        "https://*/*"
+    ],
+    "icons": {
+        "16": "assets/icon16.png",
+        "48": "assets/icon48.png",
+        "128": "assets/icon128.png"
+    }
+}
