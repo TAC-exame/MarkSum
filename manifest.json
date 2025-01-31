@@ -1,20 +1,16 @@
 {
     "manifest_version": 3,
-    "name": "MarkSum - AI Summarizer",
+    "name": "Markdown Converter",
     "version": "1.0",
-    "description": "Resumo de textos localmente usando IA.",
-    "permissions": ["storage", "activeTab", "scripting"],
-    "background": {
-      "service_worker": "background.js"
-    },
-    "host_permissions": ["<all_urls>"],
+    "description": "Conversão local de Markdown",
+    "permissions": [
+      "activeTab"
+    ],
     "action": {
       "default_popup": "popup.html"
     },
-    "content_scripts": [
-      {
-        "matches": ["<all_urls>"],
-        "js": ["content.js"]
-      }
-    ]
+    "content_scripts": [{
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }]
   }
